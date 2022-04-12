@@ -1,0 +1,16 @@
+# Python binaries
+*.pyc
+
+# download data
+/lyc_data/*.json
+/lyc_data/*.txt
+
+# log
+*.log
+log
+
+# Web environment
+/web/env
+
+# local settings
+/web/local_settings.py
