@@ -1,2 +1,2 @@
-# vector_retrieval_test_platform
-VECTOR RETRIEVAL TEST PLATFORM FOR NLP
+# 语言模型
+这里存放各种语言模型，如Glove、elmo、bert微调模型系列等，
