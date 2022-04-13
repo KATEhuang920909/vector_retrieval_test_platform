@@ -25,7 +25,7 @@ var b = host + "/artist/indexAjax?category=" + index + "&prefix=" + $("#artistCo
 ### 三、python爬虫解析代码
 ##### 使用 scrapy 管理爬虫
 启动方法 : 进入目录 `cd kuwolyc`  执行`scrapy crawl lyc`
-
+test
 ### 四、ES-docker部署，
 Docker页面：https://hub.docker.com/_/elasticsearch/
 ##### docker部署方法
