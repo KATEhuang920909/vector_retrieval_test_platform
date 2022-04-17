@@ -9,7 +9,7 @@ import h5py
 import numpy as np
 
 sys.path.append('/Users/Ryan/code/python/hnsw-python')
-from hnsw import HNSW
+from hnsw_model import HNSW
 
 
 fr = open('glove-25-angular-balanced-128.ind','rb')

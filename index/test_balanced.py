@@ -10,7 +10,7 @@ from pandas import DataFrame
 import sys
 
 sys.path.append('/Users/Ryan/code/python/hnsw-python')
-from hnsw import HNSW
+from hnsw_model import HNSW
 
 fr = open('glove-25-angular-balanced.ind','rb')
 hnsw_n = pickle.load(fr)

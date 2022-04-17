@@ -10,7 +10,7 @@ import numpy as np
 from pandas import DataFrame
 
 sys.path.append('/Users/Ryan/code/python/hnsw-python')
-from hnsw import HNSW
+from hnsw_model import HNSW
 
 
 fr = open('glove-25-angular-origin-128.ind','rb')

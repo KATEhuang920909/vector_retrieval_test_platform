@@ -1,0 +1,4 @@
+/model/ptm/tencent-ailab-embedding-zh-d100-v0.2.0-s.txt
+/data/
+/model/ptm/word2vec.model
+/model/ptm/word2vec.model.vectors.npy
