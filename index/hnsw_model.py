@@ -26,7 +26,7 @@ class HNSW(object):
         return self.distance_func(x, [y])[0]
 
     def vectorized_distance_(self, x, ys):
-        pprint.pprint([self.distance_func(x, y) for y in ys])
+        # pprint.pprint([self.distance_func(x, y) for y in ys])
         return [self.distance_func(x, y) for y in ys]
 
     def __init__(self, distance_type, m=5, ef=200, m0=None, heuristic=True, vectorized=False):

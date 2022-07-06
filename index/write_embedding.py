@@ -45,22 +45,22 @@ corpus = pd.read_csv(r'../data/ecom/corpus.tsv', sep='\t', header=None).sample(n
 train = load_data(r'../data/ecom/train.query.txt')
 dev = load_data(r'../data/ecom/dev.query.txt')
 corpus = corpus[1].values
-# index
+# # index
 hnsw = HNSW('cosine')
-vector = fit_vector(corpus)
-dic = dict()
-for index, i in enumerate(vector):
-    hnsw.add(i)
-    dic[index] = corpus[index]
-# 保存
-with open('../model/index_model/word2vec-cosine-256.ind', 'wb') as f:
-    picklestring = pickle.dump(hnsw, f, pickle.HIGHEST_PROTOCOL)
+# vector = fit_vector(corpus)
+# dic = dict()
+# for index, i in enumerate(vector):
+#     hnsw.add(i)
+#     dic[index] = corpus[index]
+# # 保存
+# with open('../model/index_model/word2vec-cosine-256.ind', 'wb') as f:
+#     picklestring = pickle.dump(hnsw, f, pickle.HIGHEST_PROTOCOL)
 
 # search
 # load index model
 # hnsw = pickle.load(open('../model/index_model/word2vec-cosine-256.ind', 'rb'))
 
 query_vec = ptm_embedding.get_w2v_embedding("狼牙棒")
-idx = hnsw.search(query_vec,k=10)
-idx =[(dic[k[0]],k[1]) for k in idx]
+idx = hnsw.search(query_vec, k=10)
+idx = [(corpus[k[0]], k[1]) for k in idx]
 pprint.pprint(idx)
