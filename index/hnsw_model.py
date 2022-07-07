@@ -17,7 +17,7 @@ class HNSW(object):
 
     def cosine_distance(self, a, b):
         try:
-            return np.dot(a, b) / (np.linalg.norm(a) * (np.linalg.norm(b)))
+            return (np.linalg.norm(a) * (np.linalg.norm(b))) / np.dot(a, b)
         except ValueError:
             print(a)
             print(b)
@@ -168,14 +168,14 @@ class HNSW(object):
         for layer in reversed(graphs[1:]):
             point, dist = self._search_graph_ef1(q, point, dist, layer)
         # look for ef neighbors in the bottom level
-        ep = self._search_graph(q, [(-dist, point)], graphs[0], ef)
+        ep = self._search_graph(q, [(dist, point)], graphs[0], ef)
 
         if k is not None:
-            ep = nlargest(k, ep)
+            ep = nsmallest(k, ep)
         else:
             ep.sort(reverse=True)
 
-        return [(idx, -md) for md, idx in ep]
+        return [(idx, md) for md, idx in ep]
 
     def _search_graph_ef1(self, q, entry, dist, layer):
         """Equivalent to _search_graph when ef=1."""
@@ -189,14 +189,14 @@ class HNSW(object):
         visited = set([entry])
 
         while candidates:
-            dist, c = heappop(candidates)  # 弹出最小元素
-            if dist > best_dist:
-                break
+            dist, c = heappop(candidates)  # 弹出堆顶元素
+            # if dist < best_dist:
+            #     break
             edges = [e for e in layer[c] if e not in visited]  # c的所有邻接点
             visited.update(edges)
             dists = vectorized_distance(q, [data[e] for e in edges])  # 邻接点与q的距离
             for e, dist in zip(edges, dists):
-                if dist < best_dist:  # 更新
+                if dist >= best_dist:  # 更新
                     best = e
                     best_dist = dist
                     heappush(candidates, (dist, e))
@@ -209,21 +209,21 @@ class HNSW(object):
         vectorized_distance = self.vectorized_distance
         data = self.data
 
-        candidates = [(-mdist, p) for mdist, p in ep]
-        heapify(candidates)
+        candidates = [(mdist, p) for mdist, p in ep]
+        heapify(candidates)# 最小堆
         visited = set(p for _, p in ep)
 
         while candidates:
             dist, c = heappop(candidates)
             mref = ep[0][0]
-            if dist > -mref:
-                break
+            if dist < mref:
+                continue
             # pprint.pprint(layer[c])
             edges = [e for e in layer[c] if e not in visited]
             visited.update(edges)
             dists = vectorized_distance(q, [data[e] for e in edges])
             for e, dist in zip(edges, dists):
-                mdist = -dist
+                mdist = dist
                 if len(ep) < ef:
                     heappush(candidates, (dist, e))
                     heappush(ep, (mdist, e))

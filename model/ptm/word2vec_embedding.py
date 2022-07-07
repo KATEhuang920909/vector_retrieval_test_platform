@@ -34,7 +34,7 @@ def word2vec_train(data, pre_train_path=None, need_finetune=False):  # 全量训
 
 
 def load_data(path):
-    with open(path,encoding="utf8") as f:
+    with open(path, encoding="utf8") as f:
         train = f.readlines()
         train = [k.strip().split("\t") for k in train]
         train = pd.DataFrame(train)
@@ -57,11 +57,14 @@ if __name__ == '__main__':
     # print(sentencesbag[:2])
     # sentencesbag = [ for k in sentencesbag]
     #
-    def cosine_distance( a, b):
-        return np.dot(a, b) / (np.linalg.norm(a) * (np.linalg.norm(b)))
-    # word2vec_train(sentencesbag)
-    texts1=jieba.lcut("湖南安化黑茶湘益2017年金湘益2kg金花茯砖茶湘益茯茶金湘益2000g")
-    texts2 = jieba.lcut(str("狼牙棒").strip())
+    def cosine_distance(a, b):
+        return 1/(np.dot(a, b)/(np.linalg.norm(a) * (np.linalg.norm(b))))
+
+        # word2vec_train(sentencesbag)
+
+
+    texts1 = jieba.lcut("隔夜衣架落地落地立式挂家用网红衣帽架")
+    texts2 = jieba.lcut("隔夜衣架落地落地立式挂家用网红衣帽架简易卧室实木置物架晾衣架")
     model = KeyedVectors.load("word2vec.model", mmap='r')
     # print(model["水果"])
-    print(cosine_distance( np.mean([model[k] for k in texts1], axis=0), np.mean([model[k] for k in texts2], axis=0)))
+    print(cosine_distance(np.mean([model[k] for k in texts1], axis=0), np.mean([model[k] for k in texts2], axis=0)))

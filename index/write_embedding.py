@@ -38,29 +38,28 @@ def fit_vector(corpus, batch_size=256, ):
 
     return temp_res
 
-
 # 数据集
 ptm_embedding = PTM_Embedding(model_type="word2vec", pre_train_path=r"../model/ptm/word2vec.model")
 corpus = pd.read_csv(r'../data/ecom/corpus.tsv', sep='\t', header=None).sample(n=10000)
 train = load_data(r'../data/ecom/train.query.txt')
 dev = load_data(r'../data/ecom/dev.query.txt')
 corpus = corpus[1].values
-# # index
-hnsw = HNSW('cosine')
-# vector = fit_vector(corpus)
-# dic = dict()
-# for index, i in enumerate(vector):
-#     hnsw.add(i)
-#     dic[index] = corpus[index]
-# # 保存
-# with open('../model/index_model/word2vec-cosine-256.ind', 'wb') as f:
-#     picklestring = pickle.dump(hnsw, f, pickle.HIGHEST_PROTOCOL)
 
+# =====================================================================
+# index
+hnsw = HNSW('cosine')
+vector = fit_vector(corpus)
+for index, i in enumerate(vector):
+    hnsw.add(i)
+# 保存
+with open('../model/index_model/word2vec-cosine-256.ind', 'wb') as f:
+    picklestring = pickle.dump(hnsw, f, pickle.HIGHEST_PROTOCOL)
+# ============================================================================
 # search
 # load index model
-# hnsw = pickle.load(open('../model/index_model/word2vec-cosine-256.ind', 'rb'))
+hnsw = pickle.load(open('../model/index_model/word2vec-cosine-256.ind', 'rb'))
 
-query_vec = ptm_embedding.get_w2v_embedding("狼牙棒")
+query_vec = ptm_embedding.get_w2v_embedding("隔夜衣架落地落地立式挂家用网红衣帽架")
 idx = hnsw.search(query_vec, k=10)
 idx = [(corpus[k[0]], k[1]) for k in idx]
 pprint.pprint(idx)
