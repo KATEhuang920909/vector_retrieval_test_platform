@@ -21,7 +21,6 @@ import jieba
 warnings.filterwarnings("ignore")
 
 
-
 class ANNSearch:
     data = []
 
@@ -54,27 +53,23 @@ class ANNSearch:
         # self.IVFIndex.train(self.data)
         # self.IVFIndex.add(self.data)
 
-
         # param = "HNSW64"
         # self.HNSW64Index = faiss.index_factory(dim, param, measure)
         # self.HNSW64Index.train(self.data)
         # self.HNSW64Index.add(self.data)
 
-
-
     def search_by_fais(self, query, k=10):
-        vector = self.data[self.textsidx[query]]
-        dists, inds = self.ForceIndex.search(vector.reshape(-1, 200), k)
+        if type(query) == str:
+            query = self.data[self.textsidx[query]]
+        dists, inds = self.ForceIndex.search(query.reshape(-1, 200), k)
 
         return zip([self.idx2texts[idx] for idx in inds[0][1:]], dists[0][1:])
-
 
     # def search_by_fais_V4(self, query, k=10):
     #     vector = self.data[self.textsidx[query]]
     #     dists, inds = self.IVFIndex.search(vector.reshape(-1, 200), k)
     #
     #     return zip([self.idx2texts[idx] for idx in inds[0][1:]], dists[0][1:])
-
 
     # def search_by_fais_V6(self, query, k=10):
     #     vector = self.data[self.textsidx[query]]
@@ -94,7 +89,7 @@ def time_test(texts, vector):
     res = []
     search_model = ANNSearch(texts, vector)
     text = "以前是朋友。"
-    text_pcs = jieba.lcut(re.sub(filters, "", str(text)))
+    # text_pcs = jieba.lcut(re.sub(filters, "", str(text)))
 
     # faiss搜索
     start = time.time()
@@ -126,24 +121,76 @@ def result_test(texts, vector):
     text = "我跟他只是认识而已他咋了，欠钱吗？"
     search_model = ANNSearch(texts, vector)
     # bm25 检索
-    text_pcs = jieba.lcut(re.sub(filters, "", str(text)))
-
+    # text_pcs = jieba.lcut(re.sub(filters, "", str(text)))
 
     print("faiss_force:", list(search_model.search_by_fais(text, k=6)))
     # print("faiss_ivp:", list(search_model.search_by_fais_V4(text, k=6)))
     # print("faiss_hnsw:", list(search_model.search_by_fais_V6(text, k=6)))
 
 
+def load_data(path):
+    with open(path, encoding="utf8") as f:
+        train = f.readlines()
+        train = [k.strip().split("\t") for k in train]
+        train = pd.DataFrame(train)
+    return train
+
+
+def fit_vector(corpus, batch_size=256, ):
+    temp_res = np.zeros((0, 256))
+    i = 0
+    loop_n = len(corpus) // batch_size
+    while True:
+        if i == loop_n:
+            break
+        corpus_vec = ptm_embedding.get_w2v_embedding(corpus[i * batch_size:(i + 1) * batch_size])
+        print(corpus_vec.shape, temp_res.shape)
+        temp_res = np.append(temp_res, corpus_vec, axis=0)
+        i += 1
+    if len(corpus) % batch_size > 0:
+        corpus_vec = ptm_embedding.get_w2v_embedding(corpus[i * batch_size:(i + 1) * batch_size])
+        temp_res = np.append(temp_res, corpus_vec, axis=0)
+
+    return temp_res
+
+
 if __name__ == "__main__":
     # time_test()
     import matplotlib.pyplot as plt
+    from utils.get_embedding import PTM_Embedding
 
-    filters = "[^a-zA-Z\u4e00-\u9fd5]"
-    data = pd.read_csv(r"xx.csv")
-    data = data["query"].unique()
-    result = []
-    with open("vector.pkl", "rb") as f:
-        vector = pickle.load(f)
+    # 数据集
+    ptm_embedding = PTM_Embedding(model_type="word2vec", pre_train_path=r"../model/ptm/word2vec.model")
+    corpus = pd.read_csv(r'../data/ecom/corpus.tsv', sep='\t', header=None).sample(n=10000)
+    train = load_data(r'../data/ecom/train.query.txt')
+    dev = load_data(r'../data/ecom/dev.query.txt')
+    corpus = corpus[1].values
+
+    # =====================================================================
+    # index
+    vector = fit_vector(corpus)
+
+    search_model = ANNSearch(corpus, vector)
+
+    # 保存
+    with open('../model/index_model/word2vec-cosine-256.ind', 'wb') as f:
+        picklestring = pickle.dump(search_model, f, pickle.HIGHEST_PROTOCOL)
+    # ============================================================================
+    # search
+    # load index model
+    search_model = pickle.load(open('../model/index_model/word2vec-cosine-256.ind', 'rb'))
+
+    query_vec = ptm_embedding.get_w2v_embedding("隔夜衣架落地落地立式挂家用网红衣帽架")
+    result = search_model.search_by_fais(query_vec, k=10)
+    # idx = [(corpus[k[0]], k[1]) for k in idx]
+    print("faiss_force:", list(result))
+
+    # filters = "[^a-zA-Z\u4e00-\u9fd5]"
+    # data = pd.read_csv(r"xx.csv")
+    # data = data["query"].unique()
+    # result = []
+    # with open("vector.pkl", "rb") as f:
+    #     vector = pickle.load(f)
 
     # for i in range(len(data) // 1000):
     #     print((i + 1) * 1000)
