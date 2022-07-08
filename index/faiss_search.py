@@ -17,14 +17,15 @@ import pickle
 import gensim
 import warnings
 import jieba
-
+from faiss import normalize_L2
 warnings.filterwarnings("ignore")
 
 
 class ANNSearch:
     data = []
 
-    def __init__(self, texts, vector):
+    def __init__(self, texts, vector, dim):
+        self.dim = dim
         # for counter, key in enumerate(model.vocab.keys()):
         #     self.data.append(model[key])
         #     self.word2idx[key] = counter
@@ -32,8 +33,7 @@ class ANNSearch:
 
         # leaf_size is a hyperparameter
 
-        # 这里加L2正则化，使得余弦相似度就是跟欧式距离等价
-        # self.data=preprocessing.normalize(np.array(self.data), norm='l2')
+
 
         self.data = vector.astype("float32")
         self.textsidx = dict(zip(texts, np.arange(len(texts))))
@@ -42,7 +42,8 @@ class ANNSearch:
         # self.faiss_index = faiss.IndexFlatIP(200)
         # self.faiss_index.train(self.data)
         # self.faiss_index.add(self.data)
-        dim, measure = 100, faiss.METRIC_L2
+        normalize_L2(self.data)
+        dim, measure = self.dim, faiss.METRIC_INNER_PRODUCT
         param = "Flat"
         self.ForceIndex = faiss.index_factory(dim, param, measure)
         self.ForceIndex.train(self.data)
@@ -61,9 +62,12 @@ class ANNSearch:
     def search_by_fais(self, query, k=10):
         if type(query) == str:
             query = self.data[self.textsidx[query]]
-        dists, inds = self.ForceIndex.search(query.reshape(-1, 200), k)
+        else:
+            print(query.shape[0],query.shape[1])
+            normalize_L2(query)
+        dists, inds = self.ForceIndex.search(query.reshape(-1, self.dim), k)
 
-        return zip([self.idx2texts[idx] for idx in inds[0][1:]], dists[0][1:])
+        return zip([self.idx2texts[idx] for idx in inds[0]], dists[0])
 
     # def search_by_fais_V4(self, query, k=10):
     #     vector = self.data[self.textsidx[query]]
@@ -156,7 +160,7 @@ def fit_vector(corpus, batch_size=256, ):
 
 if __name__ == "__main__":
     # time_test()
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
     from utils.get_embedding import PTM_Embedding
 
     # 数据集
@@ -168,19 +172,19 @@ if __name__ == "__main__":
 
     # =====================================================================
     # index
-    vector = fit_vector(corpus)
+    # vector = fit_vector(corpus)
 
-    search_model = ANNSearch(corpus, vector)
+    # search_model = ANNSearch(corpus, vector, dim=256)
 
     # 保存
-    with open('../model/index_model/word2vec-cosine-256.ind', 'wb') as f:
-        picklestring = pickle.dump(search_model, f, pickle.HIGHEST_PROTOCOL)
+    # with open('../model/index_model/word2vec-cosine-256.ind', 'wb') as f:
+    #     picklestring = pickle.dump(search_model, f, pickle.HIGHEST_PROTOCOL)
     # ============================================================================
     # search
     # load index model
     search_model = pickle.load(open('../model/index_model/word2vec-cosine-256.ind', 'rb'))
 
-    query_vec = ptm_embedding.get_w2v_embedding("隔夜衣架落地落地立式挂家用网红衣帽架")
+    query_vec = ptm_embedding.get_w2v_embedding("实木挂墙电视柜悬空樱桃木墙壁柜黑胡桃木餐边储物柜日式藤编吊柜")
     result = search_model.search_by_fais(query_vec, k=10)
     # idx = [(corpus[k[0]], k[1]) for k in idx]
     print("faiss_force:", list(result))

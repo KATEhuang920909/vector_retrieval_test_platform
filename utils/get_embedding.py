@@ -18,7 +18,8 @@ class PTM_Embedding:
     def get_w2v_embedding(self, contents):
         if type(contents) in [str, int, float]:
             content_seg = jieba.lcut(contents)
-            vec = np.mean([self.model[k] for k in content_seg], axis=0)
+            vec = np.mean([self.model[k] for k in content_seg], axis=0).reshape(1, -1)
+
         else:
             content_seg = [jieba.lcut(k) for k in contents]
             vec = np.array([np.mean([self.model[k] for k in ss], axis=0) for ss in content_seg])
@@ -27,7 +28,7 @@ class PTM_Embedding:
 
 if __name__ == '__main__':
     def cosine_distance(a, b):
-        return np.dot(a, b)/(np.linalg.norm(a) * (np.linalg.norm(b)))
+        return np.dot(a, b) / (np.linalg.norm(a) * (np.linalg.norm(b)))
 
 
     ptm_embedding = PTM_Embedding("word2vec", "../model/ptm/word2vec.model")

@@ -58,13 +58,13 @@ if __name__ == '__main__':
     # sentencesbag = [ for k in sentencesbag]
     #
     def cosine_distance(a, b):
-        return 1/(np.dot(a, b)/(np.linalg.norm(a) * (np.linalg.norm(b))))
+        return np.dot(a, b) / (np.linalg.norm(a) * (np.linalg.norm(b)))
 
         # word2vec_train(sentencesbag)
 
 
-    texts1 = jieba.lcut("隔夜衣架落地落地立式挂家用网红衣帽架")
-    texts2 = jieba.lcut("隔夜衣架落地落地立式挂家用网红衣帽架简易卧室实木置物架晾衣架")
+    texts1 = jieba.lcut("顶天立地衣帽架落地简约现代帽子挂包卧室晾衣多功能家用衣服挂架")
+    texts2 = jieba.lcut("门口壁挂墙上衣帽架外套收纳挂衣服架帽子挂免打孔家用卧室挂包架")
     model = KeyedVectors.load("word2vec.model", mmap='r')
     # print(model["水果"])
     print(cosine_distance(np.mean([model[k] for k in texts1], axis=0), np.mean([model[k] for k in texts2], axis=0)))
