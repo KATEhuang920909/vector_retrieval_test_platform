@@ -2,3 +2,4 @@
 /data/
 /model/ptm/word2vec.model
 /model/ptm/word2vec.model.vectors.npy
+/index/.idea
