@@ -8,15 +8,11 @@
 # @File    : faiss_experiment.py
 import time, random
 import numpy as np
-from sklearn import preprocessing
 import pandas as pd
 
 import faiss
-import re
 import pickle
-import gensim
 import warnings
-import jieba
 from faiss import normalize_L2
 
 warnings.filterwarnings("ignore")
