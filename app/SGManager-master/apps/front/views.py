@@ -4,7 +4,10 @@
 # @file  : views.py
 # @time  : 2017/11/24 19:57:14
 # @description：
-
+import sys
+sys.path.append("./")
+sys.path.append("../")
+sys.path.append("../../")
 from flask import (
     Blueprint, views, render_template, redirect, url_for, request, session, flash, g)
 from .forms import LoginForm
@@ -47,7 +50,7 @@ class MainView(views.MethodView):
             return self.get()
 
 
-bp.add_url_rule('/login/', view_func=LoginView.as_view('login'))
+# bp.add_url_rule('/login/', view_func=LoginView.as_view('login'))
 
 
 @bp.route('/register/', methods=['GET', 'POST'])
