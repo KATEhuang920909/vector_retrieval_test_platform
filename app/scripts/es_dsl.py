@@ -2,7 +2,7 @@
 import json
 from datetime import datetime
 import pymongo
-from app.elasticsearchClass import Index
+from web.elasticsearchClass import Index
 
 client = pymongo.MongoClient('127.0.0.1', 27017)
 db = client['spider']

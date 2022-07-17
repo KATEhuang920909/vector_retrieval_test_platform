@@ -1,6 +1,6 @@
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
-from app.Logger.logger import log_v
+from Logger.logger import log_v
 
 
 class Index():

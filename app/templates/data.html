@@ -118,21 +118,26 @@
 
                                     <div>
                                         {% if data._source.document %}
-                                            <i class="iconfont icon-riqi2"></i>&nbsp;{{ data._source.document[:100] }} .
-                                            . .
-                                            .&nbsp;&nbsp;
+                                            <i class="iconfont icon-riqi2"></i>&nbsp;{{ data._source.document[:100] }}
                                         {% else %}
                                             不知原因没有资料 。。。。
                                         {% endif %}
                                         <i class="iconfont icon-riqi2"></i>&nbsp&nbsp;&nbsp;
 
 
-                                        {#                                    搜索匹配度：<i class="iconfont icon-riqi2"></i>&nbsp;{{ data._score }}&nbsp;&nbsp;#}
-
-                                        <br><br>
-
 
                                     </div>
+                                    <a href="{{ uid_link + data._id }}">
+
+
+                                        <div class="index-excerpt">
+                                            <div class="index-text mb-1">
+                                                搜索匹配度：{{ data._score }} <a href="javascript:;"> &nbsp;</a>&nbsp;
+                                                <i class="iconfont icon-riqi2"></i>&nbsp;
+                                                <!--最后更新时间：{{ data._source.create_time }}-->
+                                            </div>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         {% endfor %}

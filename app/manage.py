@@ -1,6 +1,10 @@
 # coding:utf8
-from app import app
+# from .app import app
+import sys
+sys.path.append("../")
 from flask_script import Manager, Server
+from retrieval.search import ANNSearch
+from app import app
 
 manage = Manager(app)
 
