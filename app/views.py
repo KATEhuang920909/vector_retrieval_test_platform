@@ -8,16 +8,18 @@ from elasticsearchClass import Index
 from forms import SearchForm
 from flask import Blueprint
 
-
 import pickle
 from flask import request, jsonify, render_template, redirect
 from utils.get_embedding import PTM_Embedding
+
 # from retrieval.search import ANNSearch
 
 # baike_es = Index(index_type="", index_name="baike")
 home = Blueprint("home", __name__)
 # 加载分类模型
-goods_es = Index(index_type="goods_data", index_name="goods")
+index_type = "goods_data"
+index_name = "goods"
+goods_es = Index(index_type=index_type, index_name=index_name)
 ptm_embedding = PTM_Embedding(model_type="word2vec", pre_train_path=r"../model/ptm/word2vec.model")
 
 # search
@@ -34,15 +36,18 @@ def index():
 @home.route("/search", methods=['GET', 'POST'])
 def search():
     search_key = request.values.get("search_key", default=None)
-    search_engine = request.values.get("search_engine", default="elastic_search")
+    search_engine = request.values.get("search_engine", default="retrieval")
     if search_key:
         searchForm = SearchForm()
         log_v.error("[+] Search Keyword: " + search_key)
         if search_engine == "elastic_search":
             match_data = goods_es.search(search_key, count=30)["hits"]["hits"]
-        else:# 向量检索
+        else:  # 向量检索
             query_vec = ptm_embedding.get_w2v_embedding(search_key)
-            match_data = search_model.search_by_fais(query_vec, k=10)
+            result = search_model.search_by_fais(query_vec, k=30)
+            match_data = [{"_index":index_name,'_id': str(x[0]),'_score':score,'_source':{'doc_id': x[0],'document':x[1]}}
+                          for x, score in result]
+
         # 翻页
         PER_PAGE = 10
         page = request.args.get(get_page_parameter(), type=int, default=1)

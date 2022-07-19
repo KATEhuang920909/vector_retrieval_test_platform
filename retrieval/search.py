@@ -44,7 +44,7 @@ class ANNSearch:
             normalize_L2(query)
         dists, inds = self.ForceIndex.search(query.reshape(-1, self.dim), k)
 
-        return zip([self.idx2texts[idx] for idx in inds[0]], dists[0])
+        return zip([(idx, self.idx2texts[idx]) for idx in inds[0]], dists[0])
 
 
 if __name__ == "__main__":
